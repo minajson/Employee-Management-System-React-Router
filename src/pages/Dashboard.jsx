@@ -1,7 +1,5 @@
-
-
 import EmployeeList from "../components/EmployeeList";
-import employees from "../data/Employees.json";
+import employees from "../data/employees.json";
 
 export default function Dashboard() {
   return (
