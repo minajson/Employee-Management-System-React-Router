@@ -1,26 +1,26 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import employees from "../data/employees.json";
 
-export default function EmployeeDetails() {
+export default function EmployeeDetails({ role }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const employee = employees.find((e) => String(e.id) === String(id));
+  const isHR = role === "hr";
 
   if (!employee) {
     return (
-      <div className="card">
-        <p>Employee not found.</p>
-        <button className="btn" onClick={() => navigate("/")}>
-          Back to Dashboard
+      <div className="card card-fade">
+        <button className="btn-outline" onClick={() => navigate("/")}>
+          ← Back to Dashboard
         </button>
+        <p>Employee not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="card">
+    <div className="card card-fade">
       <button className="btn-outline" onClick={() => navigate(-1)}>
         ← Back
       </button>
@@ -30,14 +30,21 @@ export default function EmployeeDetails() {
         <span className="details-code">({employee.employeeCode})</span>
       </h2>
       <p className="details-subtitle">
-        {employee.role} · {employee.department} · {employee.location}
+        {employee.role} · {employee.department} · {employee.location} · Status:{" "}
+        {employee.status}
       </p>
 
+      {!isHR && (
+        <p className="access-note">
+          You are viewing as <strong>Admin</strong>. Sensitive HR fields are hidden.
+        </p>
+      )}
+
       <div className="details-grid">
+        {/* Basic Info - visible to all */}
         <section>
           <h3>Basic Info</h3>
           <ul>
-            <li><strong>Status:</strong> {employee.status}</li>
             <li><strong>Employment Type:</strong> {employee.employmentType}</li>
             <li><strong>Grade:</strong> {employee.grade}</li>
             <li><strong>Date of Joining:</strong> {employee.dateOfJoining}</li>
@@ -46,6 +53,7 @@ export default function EmployeeDetails() {
           </ul>
         </section>
 
+        {/* Contact - visible to all */}
         <section>
           <h3>Contact</h3>
           <ul>
@@ -55,32 +63,53 @@ export default function EmployeeDetails() {
           </ul>
         </section>
 
+        {/* Employment summary - visible to all */}
         <section>
           <h3>Employment</h3>
           <ul>
             <li><strong>Manager:</strong> {employee.manager}</li>
-            <li><strong>Last Promotion:</strong> {employee.lastPromotionDate || "N/A"}</li>
-            <li><strong>Salary (Mock):</strong> ₦{employee.salary.toLocaleString()}</li>
+            <li><strong>Status:</strong> {employee.status}</li>
+            <li>
+              <strong>Last Promotion:</strong>{" "}
+              {employee.lastPromotionDate || "N/A"}
+            </li>
           </ul>
         </section>
 
         <section>
-          <h3>Emergency & IDs</h3>
+          <h3>Emergency Contact</h3>
           <ul>
-            <li><strong>Emergency Contact:</strong> {employee.emergencyContactName}</li>
-            <li><strong>Emergency Phone:</strong> {employee.emergencyContactPhone}</li>
-            <li><strong>National ID:</strong> {employee.nationalId}</li>
+            <li>
+              <strong>Name:</strong> {employee.emergencyContactName}
+            </li>
+            <li>
+              <strong>Phone:</strong> {employee.emergencyContactPhone}
+            </li>
           </ul>
         </section>
 
-        <section className="span-2">
-          <h3>Bank Details (Internal Only)</h3>
-          <ul>
-            <li><strong>Bank:</strong> {employee.bankName}</li>
-            <li><strong>Account Number:</strong> {employee.bankAccountNumber}</li>
-          </ul>
-        </section>
+        {/* HR-only: Salary, Bank, National ID */}
+        {isHR && (
+          <section className="span-2 sensitive-block">
+            <h3>Compensation & Identity (HR Only)</h3>
+            <ul>
+              <li>
+                <strong>Salary:</strong> ₦{employee.salary.toLocaleString()}
+              </li>
+              <li>
+                <strong>Bank:</strong> {employee.bankName}
+              </li>
+              <li>
+                <strong>Account Number:</strong> {employee.bankAccountNumber}
+              </li>
+              <li>
+                <strong>National ID:</strong> {employee.nationalId}
+              </li>
+            </ul>
+          </section>
+        )}
 
+        {/* HR-only: Skills & Notes full; Admin only partial */}
         <section className="span-2">
           <h3>Skills & Notes</h3>
           <p>
@@ -89,8 +118,13 @@ export default function EmployeeDetails() {
               ? employee.skills.join(", ")
               : "N/A"}
           </p>
-          <p>
-            <strong>Notes:</strong> {employee.notes || "No special notes."}
+          <p className={isHR ? "" : "blurred-note"}>
+            <strong>Notes:</strong>{" "}
+            {employee.notes
+              ? employee.notes
+              : isHR
+              ? "No special notes."
+              : "Notes are restricted to HR view."}
           </p>
         </section>
       </div>
