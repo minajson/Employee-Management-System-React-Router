@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import Pagination from "../../components/Pagination";
+import Pagination from "./Pagination";
 
 export default function EmployeeList({ employees }) {
   // existing filters
@@ -84,13 +84,13 @@ export default function EmployeeList({ employees }) {
     <div className="card">
       <SearchBar
         search={search}
-        onSearchChange={(v) => { setSearch(v); setPage(1); }}         {/* reset page on filter */}
+        onSearchChange={(v) => { setSearch(v); setPage(1); }}         
         department={department}
-        onDepartmentChange={(v) => { setDepartment(v); setPage(1); }}  {/* reset page on filter */}
+        onDepartmentChange={(v) => { setDepartment(v); setPage(1); }}  
         statusFilter={statusFilter}
-        onStatusChange={(v) => { setStatusFilter(v); setPage(1); }}    {/* reset page on filter */}
+        onStatusChange={(v) => { setStatusFilter(v); setPage(1); }}    
         sortBy={sortBy}
-        onSortByChange={(v) => { setSortBy(v); setPage(1); }}          {/* reset page on sort */}
+        onSortByChange={(v) => { setSortBy(v); setPage(1); }}          
         departments={departments}
         statuses={statuses}
       />
