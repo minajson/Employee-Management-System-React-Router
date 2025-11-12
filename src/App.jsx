@@ -10,7 +10,7 @@ export default function App() {
   return (
     <div className="app-root">
       <header className="top-bar">
-        <div className="logo">Employee Manager Pro</div>
+        <div className="logo">Employee Management Sysytem</div>
 
         <nav className="nav-links">
           <NavLink to="/" className="nav-link">
