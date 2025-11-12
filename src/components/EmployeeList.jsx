@@ -1,13 +1,19 @@
-
-import { useState, useMemo } from "react";
+// src/data/components/EmployeeList.jsx
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
+import Pagination from "../../components/Pagination";
 
 export default function EmployeeList({ employees }) {
+  // existing filters
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [sortBy, setSortBy] = useState("name");
+
+  // NEW: paging state
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const departments = useMemo(
     () => ["All", ...new Set(employees.map((e) => e.department))],
@@ -18,6 +24,7 @@ export default function EmployeeList({ employees }) {
     [employees]
   );
 
+  // Your existing filter + sort, unchanged
   const filteredEmployees = useMemo(() => {
     const term = search.trim().toLowerCase();
 
@@ -55,23 +62,41 @@ export default function EmployeeList({ employees }) {
     return list;
   }, [employees, search, department, statusFilter, sortBy]);
 
+  // ----- NEW: derive page slice -----
+  const totalItems = filteredEmployees.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+  // if filters change and current page is now out of range, reset to 1
+  useEffect(() => {
+    if (page > totalPages) setPage(1);
+  }, [totalPages, page]);
+
+  const pageSlice = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredEmployees.slice(start, start + pageSize);
+  }, [filteredEmployees, page, pageSize]);
+
+  // helpers for “showing X–Y of Z”
+  const from = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, totalItems);
+
   return (
     <div className="card">
       <SearchBar
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={(v) => { setSearch(v); setPage(1); }}         {/* reset page on filter */}
         department={department}
-        onDepartmentChange={setDepartment}
+        onDepartmentChange={(v) => { setDepartment(v); setPage(1); }}  {/* reset page on filter */}
         statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
+        onStatusChange={(v) => { setStatusFilter(v); setPage(1); }}    {/* reset page on filter */}
         sortBy={sortBy}
-        onSortByChange={setSortBy}
+        onSortByChange={(v) => { setSortBy(v); setPage(1); }}          {/* reset page on sort */}
         departments={departments}
         statuses={statuses}
       />
 
       <div className="table-wrapper">
-        <table className="employee-table">
+        <table className="employee-table rwd-table">
           <thead>
             <tr>
               <th>Code</th>
@@ -84,8 +109,9 @@ export default function EmployeeList({ employees }) {
               <th></th>
             </tr>
           </thead>
+
           <tbody>
-            {filteredEmployees.length === 0 && (
+            {totalItems === 0 && (
               <tr>
                 <td colSpan="8" className="no-data">
                   No employees match your search/filter.
@@ -93,22 +119,28 @@ export default function EmployeeList({ employees }) {
               </tr>
             )}
 
-            {filteredEmployees.map((emp) => (
+            {pageSlice.map((emp) => (
               <tr key={emp.id}>
-                <td>{emp.employeeCode}</td>
-                <td>
+                <td data-label="Code">{emp.employeeCode}</td>
+                <td data-label="Employee">
                   {emp.firstName} {emp.lastName}
                 </td>
-                <td>{emp.department}</td>
-                <td>{emp.role}</td>
-                <td>{emp.location}</td>
-                <td>
-                  <span className={`status-pill status-${emp.status.replace(" ", "").toLowerCase()}`}>
+                <td data-label="Department">{emp.department}</td>
+                <td data-label="Role">{emp.role}</td>
+                <td data-label="Location" className="employee-location">
+                  {emp.location}
+                </td>
+                <td data-label="Status">
+                  <span
+                    className={`status-pill status-${emp.status
+                      .replace(" ", "")
+                      .toLowerCase()}`}
+                  >
                     {emp.status}
                   </span>
                 </td>
-                <td>{emp.dateOfJoining}</td>
-                <td>
+                <td data-label="Joined">{emp.dateOfJoining}</td>
+                <td data-label="">
                   <Link to={`/employee/${emp.id}`} className="btn-link">
                     View Details
                   </Link>
@@ -119,10 +151,30 @@ export default function EmployeeList({ employees }) {
         </table>
       </div>
 
+      {/* records info + pagination */}
       <div className="records-info">
-        Showing <strong>{filteredEmployees.length}</strong> of{" "}
-        <strong>{employees.length}</strong> employees
+        {totalItems > 0 ? (
+          <>
+            Showing <strong>{from}</strong>–<strong>{to}</strong> of{" "}
+            <strong>{totalItems}</strong> filtered employees
+            {" · "}
+            Total in system: <strong>{employees.length}</strong>
+          </>
+        ) : (
+          <>
+            Showing <strong>0</strong> of <strong>{employees.length}</strong> employees
+          </>
+        )}
       </div>
+
+      <Pagination
+        page={page}
+        totalItems={totalItems}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={(n) => { setPageSize(n); setPage(1); }}
+        pageSizeOptions={[10, 20, 50]}
+      />
     </div>
   );
 }
