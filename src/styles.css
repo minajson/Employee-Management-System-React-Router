@@ -558,4 +558,125 @@ body {
   }
 }
 
+/* ===== Pagination ===== */
+.pager {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pager-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pager-range {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pager-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pager-select {
+  min-width: 84px;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+.pager-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pager-btn {
+  border: 1px solid var(--border-subtle);
+  background: #fff;
+  color: var(--text-main);
+  min-width: 36px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-size: 12px;
+}
+.pager-btn:hover { background: var(--primary-soft); color: var(--primary-dark); }
+.pager-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.pager-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 14px rgba(37,99,235,.28);
+}
+.pager-dots { color: var(--text-soft); padding: 0 4px; }
+
+/* ===== Mobile responsive table (iPhone/Samsung) ===== */
+/* Turn the table into stacked cards on small screens */
+@media (max-width: 640px) {
+  .employee-table thead { display: none; }
+
+  .employee-table, .employee-table tbody, .employee-table tr, .employee-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .employee-table tbody tr {
+    background: #fff;
+    margin: 10px 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+  }
+
+  .employee-table td {
+    border: none;
+    padding: 8px 0;
+  }
+
+  .employee-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    color: var(--text-soft);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .view-btn-wrap {
+    justify-content: flex-start;
+    margin-top: 6px;
+  }
+
+  /* Tighten pager */
+  .pager { padding: 8px 0; gap: 8px; }
+  .pager-left { width: 100%; justify-content: space-between; }
+  .pager-range { font-size: 11px; }
+  .pager-list { justify-content: center; width: 100%; }
+}
+
+/* Slightly larger phones (Galaxy/Plus sizes) */
+@media (min-width: 641px) and (max-width: 820px) {
+  .employee-table thead th,
+  .employee-table td { padding: 10px 12px; font-size: 12px; }
+  .pager { gap: 10px; }
+}
+
+
 
